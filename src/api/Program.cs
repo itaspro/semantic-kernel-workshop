@@ -1,5 +1,5 @@
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Host.AddConfiguration();
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -8,12 +8,22 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+app.UseDefaultFiles();
+app.UseStaticFiles();
+app.UseCors();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    
+    // Redirect root URL to Swagger UI URL
+    app.MapWhen(
+        context => context.Request.Path == "/",
+        appBuilder =>
+            appBuilder.Run(
+                async context => await Task.Run(() => context.Response.Redirect("/swagger"))));
 }
 
 app.UseHttpsRedirection();
