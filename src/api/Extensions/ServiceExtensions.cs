@@ -1,9 +1,8 @@
 using app.Options;
 using Microsoft.Extensions.Options;
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Plugins.Memory;
-
+using Microsoft.SemanticKernel.Connectors.AI.OpenAI;
 internal static class SemanticKernelExtensions
 {
   public static IServiceCollection AddSemanticKernel(this IServiceCollection services)
@@ -27,8 +26,10 @@ internal static class SemanticKernelExtensions
   {
     services.AddScoped(sp =>
     {
+      var OpenAIOptions = sp.GetRequiredService<IOptions<OpenAIOptions>>().Value;
       var memoryBuilder = new MemoryBuilder();
       memoryBuilder.WithLoggerFactory(sp.GetRequiredService<ILoggerFactory>());
+      memoryBuilder.WithOpenAITextEmbeddingGenerationService(OpenAIOptions.EmbeddingModel, OpenAIOptions.ApiKey);
       memoryBuilder.WithMemoryStore(new VolatileMemoryStore());    
       return memoryBuilder.Build();
     });
@@ -38,8 +39,18 @@ internal static class SemanticKernelExtensions
 
   public static IServiceCollection AddOptions(this IServiceCollection services, ConfigurationManager configuration)
   {
-    services.AddOptions<DocumentMemoryOptions>(DocumentMemoryOptions.PropertyName);
-    services.AddOptions<OpenAIOptions>(OpenAIOptions.PropertyName);
+    services
+    .AddOptions<DocumentMemoryOptions>()
+    .Bind(configuration.GetSection(DocumentMemoryOptions.PropertyName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+    services
+    .AddOptions<OpenAIOptions>()
+    .Bind(configuration.GetSection(OpenAIOptions.PropertyName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+    
     return services;
   }
 
@@ -62,6 +73,4 @@ internal static class SemanticKernelExtensions
 
     return services;
   }
-
-
 }

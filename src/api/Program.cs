@@ -1,3 +1,4 @@
+using app.Options;
 using app.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,12 +9,14 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.AddCorsPolicy(builder.Configuration)
+builder.Services.AddCorsPolicy(builder.Configuration);
+builder.Services.AddOptions(builder.Configuration);
 
 // Configure and add semantic services
 builder.Services.AddSemanticKernel();
 builder.Services.AddSemanticMemory();
 builder.Services.AddScoped<PdfDocumentService>();
+
 var app = builder.Build();
 app.UseDefaultFiles();
 app.UseStaticFiles();

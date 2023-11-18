@@ -8,10 +8,11 @@ public class OpenAIOptions
   
   [Required(AllowEmptyStrings = false)]
   public string TextModel { get; set; } = string.Empty;
+
   [Required(AllowEmptyStrings = false)]
   public string EmbeddingModel { get; set; } = string.Empty;
   public int MaxRetries { get; set; } = 10;
-  [Required(AllowEmptyStrings = false)]
+
   public string ApiKey { get; set; } = string.Empty;
 
   public string OrgId { get; set; } = string.Empty;
